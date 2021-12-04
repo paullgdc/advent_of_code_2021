@@ -1,3 +1,5 @@
+#![feature(drain_filter)]
+
 use std::{collections::HashMap, io::BufRead};
 
 fn parse_input() -> (Vec<u8>, Vec<Grid>) {
@@ -87,42 +89,40 @@ impl Grid {
 fn first_step(draws: &[u8], mut grids: Vec<Grid>) {
     let mut last_drawn = 0;
     let mut winning_grid = 0;
-    'win: for (j, draw) in draws.iter().enumerate() {
+    'win: for draw in draws.iter() {
         for (i, grid) in grids.iter_mut().enumerate() {
-            winning_grid = i;
             let has_won = grid.update_draw(*draw);
             if has_won {
-                last_drawn = j;
+                winning_grid = i;
+                last_drawn = *draw;
                 break 'win;
             }
         }
     }
-    let result: u64 = (draws[last_drawn] as u64) * grids[winning_grid].points_left();
+    let result: u64 = (last_drawn as u64) * grids[winning_grid].points_left();
     println!("First step result: {}", result);
 }
 
 fn second_step(draws: &[u8], grids: Vec<Grid>) {
     let mut not_won_grids: Vec<_> = grids;
     let mut last_draw = 0;
-    'win: for draw in draws.iter() {
-        for grid in not_won_grids.iter_mut() {
-            grid.update_draw(*draw);
-        }
-        let mut grids_left = not_won_grids.len();
-        not_won_grids.retain(|g| {
-            if g.win && grids_left > 1 {
-                grids_left -= 1;
-                false
-            } else {
-                true
+    let mut last_winner = None;
+    for draw in draws.iter() {
+        match not_won_grids
+            .drain_filter(|grid| grid.update_draw(*draw))
+            .last()
+        {
+            Some(g) => {
+                if not_won_grids.is_empty() {
+                    last_winner = Some(g);
+                    last_draw = *draw;
+                    break;
+                }
             }
-        });
-        if not_won_grids.len() == 1 && not_won_grids[0].win {
-            last_draw = *draw;
-            break 'win;
+            None => {}
         }
     }
-    let result = not_won_grids[0].points_left() * last_draw as u64;
+    let result = last_winner.unwrap().points_left() * last_draw as u64;
     println!("Second step result: {}", result);
 }
 
