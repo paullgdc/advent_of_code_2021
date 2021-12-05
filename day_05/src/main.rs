@@ -43,7 +43,7 @@ fn coordinate_delta(start: i16, end: i16) -> i16 {
 }
 
 impl Line {
-    fn points_iter<'a>(&'a self) -> impl Iterator<Item = Point> + 'a {
+    fn point_range<'a>(&'a self) -> impl Iterator<Item = Point> + 'a {
         let mut cur_pos = self.start;
         let mut end = false;
         std::iter::from_fn(move || {
@@ -69,7 +69,7 @@ fn step_1(lines: &[Line]) {
             continue;
         }
 
-        for p in line.points_iter() {
+        for p in line.point_range() {
             *point_counts.entry(p).or_insert(0) += 1;
         }
     }
@@ -81,7 +81,7 @@ fn step_1(lines: &[Line]) {
 fn step_2(lines: &[Line]) {
     let mut point_counts = HashMap::new();
     for line in lines {
-        for p in line.points_iter() {
+        for p in line.point_range() {
             *point_counts.entry(p).or_insert(0) += 1;
         }
     }
