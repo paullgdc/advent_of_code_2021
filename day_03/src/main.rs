@@ -38,21 +38,16 @@ fn most_frequent_digit(power_of_2: u8, numbers: &[u16]) -> Option<u16> {
             count_of_0 += 1;
         }
     }
-    if count_of_0 == (numbers.len() / 2) {
-        None
-    } else if count_of_0 > (numbers.len() / 2) {
-        Some(0)
-    } else {
-        Some(1)
+    use std::cmp::Ordering::*;
+    match count_of_0.cmp(&(numbers.len() / 2)) {
+        Equal => None,
+        Greater => Some(0),
+        Less => Some(1)
     }
 }
 
-fn filter_number_with_digit(numbers: &[u16], power_of_2: u8, digit_value: u16) -> Vec<u16> {
-    numbers
-        .into_iter()
-        .cloned()
-        .filter(|&n| (n & (1 << power_of_2)) >> power_of_2 == digit_value)
-        .collect()
+fn bit_at_pos(n: u16, power_of_2: u8) -> u16 {
+    (n & (1 << power_of_2)) >> power_of_2
 }
 
 fn first_step(numbers: &[u16], num_of_digits: u8) {
@@ -69,26 +64,22 @@ fn first_step(numbers: &[u16], num_of_digits: u8) {
 }
 
 fn second_step(numbers: &[u16], num_of_digits: u8) {
-    let mut buff;
-    let mut most_frequent_set = numbers;
+    let mut most_frequent_set = numbers.to_owned();
     for power_of_2 in (0..num_of_digits).rev() {
         if most_frequent_set.len() == 1 {
             break;
         }
-        let most_frequent = most_frequent_digit(power_of_2, most_frequent_set).unwrap_or(1);
-        buff = filter_number_with_digit(most_frequent_set, power_of_2, most_frequent);
-        most_frequent_set = &buff;
+        let most_frequent = most_frequent_digit(power_of_2, &most_frequent_set).unwrap_or(1);
+        most_frequent_set.retain(|&n| bit_at_pos(n, power_of_2) == most_frequent);
     }
 
-    let mut buff;
-    let mut least_frequent_set = numbers;
+    let mut least_frequent_set = numbers.to_owned();
     for power_of_2 in (0..num_of_digits).rev() {
         if least_frequent_set.len() == 1 {
             break;
         }
-        let least_frequent = most_frequent_digit(power_of_2, least_frequent_set).unwrap_or(1) ^ 1;
-        buff = filter_number_with_digit(least_frequent_set, power_of_2, least_frequent);
-        least_frequent_set = &buff;
+        let least_frequent = most_frequent_digit(power_of_2, &least_frequent_set).unwrap_or(1) ^ 1;
+        least_frequent_set.retain(|&n| bit_at_pos(n, power_of_2) == least_frequent);
     }
     let oxy_gen_rating = most_frequent_set[0];
     let c02_gen_rating = least_frequent_set[0];
@@ -99,6 +90,5 @@ fn second_step(numbers: &[u16], num_of_digits: u8) {
 fn main() {
     let input = parse_input();
     first_step(&input.0, input.1);
-
     second_step(&input.0, input.1);
 }
