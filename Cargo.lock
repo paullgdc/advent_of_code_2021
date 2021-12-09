@@ -40,3 +40,15 @@ version = "0.1.0"
 dependencies = [
  "arrayvec",
 ]
+
+[[package]]
+name = "day_09"
+version = "0.1.0"
+dependencies = [
+ "arrayvec",
+ "matrix",
+]
+
+[[package]]
+name = "matrix"
+version = "0.1.0"
