@@ -5,6 +5,7 @@
 
 use std::mem::MaybeUninit;
 
+#[derive(Copy)]
 pub struct ArrayVec<T, const CAP: usize> {
     length: u8,
     array: [MaybeUninit<T>; CAP],
@@ -64,6 +65,8 @@ impl<T: PartialEq, const CAP: usize> PartialEq for ArrayVec<T, CAP> {
     }
 }
 
+impl<T: Eq, const CAP: usize> Eq for ArrayVec<T, CAP> {}
+
 impl<T, const CAP: usize> ArrayVec<T, CAP> {
     pub fn new() -> Self {
         assert!(CAP <= u8::MAX as usize);
@@ -109,10 +112,16 @@ impl<T, const CAP: usize> ArrayVec<T, CAP> {
         self.length = new_len;
     }
 
+    pub unsafe fn push_unchecked(&mut self, elem: T) {
+        self.array
+            .get_unchecked_mut(self.length as usize)
+            .write(elem);
+        self.length += 1;
+    }
+
     pub fn push(&mut self, elem: T) {
         assert!((self.length as usize) < CAP);
-        self.array[self.length as usize].write(elem);
-        self.length += 1;
+        unsafe { self.push_unchecked(elem) }
     }
 
     pub fn to_array<const LEN: usize>(self) -> [T; LEN] {
@@ -127,6 +136,22 @@ impl<T, const CAP: usize> ArrayVec<T, CAP> {
 
             MaybeUninit::array_assume_init(arr)
         }
+    }
+}
+
+impl<T, const CAP: usize> ArrayVec<T, CAP>
+where
+    T: Copy,
+{
+    pub fn from_slice(s: &[T]) -> Self {
+        assert!(CAP >= s.len());
+        let mut new = Self::new();
+        unsafe {
+            for e in s {
+                new.push_unchecked(*e);
+            }
+        }
+        new
     }
 }
 
@@ -257,5 +282,36 @@ mod drain_filter {
                 backshift.drain.for_each(drop);
             }
         }
+    }
+}
+
+#[derive(PartialEq, Eq, Clone, Copy)]
+pub struct ArrayStr<const CAP: usize>(ArrayVec<u8, CAP>);
+
+impl<const CAP: usize> std::str::FromStr for ArrayStr<CAP> {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(ArrayVec::from_slice(s.as_bytes())))
+    }
+}
+
+impl<const CAP: usize> std::ops::Deref for ArrayStr<CAP> {
+    type Target = str;
+    fn deref(&self) -> &Self::Target {
+        unsafe { std::str::from_utf8_unchecked(&self.0) }
+    }
+}
+
+impl<const CAP: usize> std::fmt::Debug for ArrayStr<CAP> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use std::ops::Deref;
+        self.deref().fmt(f)
+    }
+}
+
+impl<const CAP: usize> std::hash::Hash for ArrayStr<CAP> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        use std::ops::Deref;
+        self.deref().hash(state)
     }
 }

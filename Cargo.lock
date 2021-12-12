@@ -54,5 +54,19 @@ name = "day_10"
 version = "0.1.0"
 
 [[package]]
+name = "day_11"
+version = "0.1.0"
+dependencies = [
+ "matrix",
+]
+
+[[package]]
+name = "day_12"
+version = "0.1.0"
+dependencies = [
+ "arrayvec",
+]
+
+[[package]]
 name = "matrix"
 version = "0.1.0"

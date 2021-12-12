@@ -17,16 +17,6 @@ fn parse_input() -> Grid {
     mat
 }
 
-// fn neightbors(g: &Grid, i: usize, j: usize) -> impl Iterator<Item = (usize, usize)> {
-//     let (left, right, bot, up);
-//     if i == 0 {
-//         left = None;
-//     } else {
-//         left = Some((i - 1, j));
-//     }
-//     if i >=
-// }
-
 fn step_1(g: &Grid) {
     let mut local_minimas = 0;
     for (i, j) in g.iter_coords() {
