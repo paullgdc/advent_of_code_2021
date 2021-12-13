@@ -1,6 +1,6 @@
 #![feature(bool_to_option)]
 #![feature(mixed_integer_ops)]
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 #[derive(Clone)]
 pub struct Matrix<T> {
@@ -54,7 +54,7 @@ impl<T> Matrix<T> {
         &'a self,
         i: usize,
         j: usize,
-    ) -> impl Iterator<Item = (usize, usize)>{
+    ) -> impl Iterator<Item = (usize, usize)> {
         let mut start_x = -1;
         let mut start_y = -1;
         let dims = self.dims();
@@ -125,6 +125,16 @@ impl<T: Default> Matrix<T> {
     }
 }
 
+impl<T: Copy> Matrix<T> {
+    pub fn new_with_elem(dims: (usize, usize), e: T) -> Self {
+        let mut new = Self::new();
+        for _ in 0..dims.1 {
+            new.next_row().from_iter((0..dims.0).map(|_| e)).finish();
+        }
+        new
+    }
+}
+
 impl<T: Debug> Debug for Matrix<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("[")?;
@@ -142,6 +152,18 @@ impl<T: Debug> Debug for Matrix<T> {
             f.write_str("]\n")?;
         }
         f.write_str("]")?;
+        Ok(())
+    }
+}
+
+impl<T: Display> Display for Matrix<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for row in 0..self.dimensions.1 {
+            for col in 0..self.dimensions.0 {
+                f.write_fmt(format_args!("{}", self.get(col, row).unwrap()))?;
+            }
+            f.write_str("\n")?;
+        }
         Ok(())
     }
 }

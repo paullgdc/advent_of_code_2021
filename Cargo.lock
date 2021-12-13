@@ -68,5 +68,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "day_13"
+version = "0.1.0"
+dependencies = [
+ "matrix",
+]
+
+[[package]]
 name = "matrix"
 version = "0.1.0"
