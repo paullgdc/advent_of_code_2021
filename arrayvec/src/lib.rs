@@ -165,6 +165,40 @@ impl<T, const CAP: usize> std::iter::FromIterator<T> for ArrayVec<T, CAP> {
     }
 }
 
+pub struct ArrayVecIntoIter<T, const CAP: usize> {
+    array_vec: ArrayVec<T, CAP>,
+    current: usize,
+}
+
+impl<T, const CAP: usize> Iterator for ArrayVecIntoIter<T, CAP> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.array_vec.len() {
+            let e;
+            unsafe {
+                e = self.array_vec.array[self.current].assume_init_read();
+                self.current += 1;
+            }
+            Some(e)
+        } else {
+            None
+        }
+    }
+}
+
+impl<T, const CAP: usize> IntoIterator for ArrayVec<T, CAP> {
+    type Item = T;
+    type IntoIter = ArrayVecIntoIter<T, CAP>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        ArrayVecIntoIter {
+            array_vec: self,
+            current: 0,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

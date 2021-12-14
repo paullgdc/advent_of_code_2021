@@ -8,7 +8,7 @@ enum Fold {
 
 type Point = (usize, usize);
 
-fn parse_input() -> (Vec<(usize, usize)>, Vec<Fold>) {
+fn parse_input() -> (Vec<Point>, Vec<Fold>) {
     let stdin = std::io::stdin();
     let mut lines = stdin.lock().lines().map(Result::unwrap);
     let positions = lines
