@@ -94,5 +94,9 @@ name = "day_18"
 version = "0.1.0"
 
 [[package]]
+name = "day_19"
+version = "0.1.0"
+
+[[package]]
 name = "matrix"
 version = "0.1.0"
