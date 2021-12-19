@@ -60,7 +60,7 @@ fn step_1(g: &Grid) {
     let mut visited = HashSet::new();
     boundary.push(Reverse((0, (0, 0))));
 
-    let mut min_cost = None;
+    let min_cost;
 
     'djikstra: loop {
         let Some(Reverse((path_cost, pos))) = boundary.pop() else {
@@ -74,13 +74,12 @@ fn step_1(g: &Grid) {
         for neigh in g.neighbors_pos(pos.0, pos.1) {
             let neigh_cost = *g.get(neigh.0, neigh.1).unwrap() as u64 + path_cost;
             if neigh == end {
-                min_cost = Some(neigh_cost);
+                min_cost = neigh_cost;
                 break 'djikstra;
             }
             boundary.push(Reverse((neigh_cost, neigh)));
         }
     }
-    let min_cost = min_cost.unwrap();
     println!("First step: {}", min_cost);
 }
 
@@ -91,7 +90,7 @@ fn step_2(g: &ExtendedGrid) {
     let mut visited = HashSet::new();
     boundary.push(Reverse((0, (0, 0))));
 
-    let mut min_cost = None;
+    let min_cost;
 
     'djikstra: loop {
         let Some(Reverse((path_cost, pos))) = boundary.pop() else {
@@ -105,13 +104,12 @@ fn step_2(g: &ExtendedGrid) {
         for neigh in g.neighbors_pos(pos.0, pos.1) {
             let neigh_cost = g.get(neigh.0, neigh.1).unwrap() as u64 + path_cost;
             if neigh == end {
-                min_cost = Some(neigh_cost);
+                min_cost = neigh_cost;
                 break 'djikstra;
             }
             boundary.push(Reverse((neigh_cost, neigh)));
         }
     }
-    let min_cost = min_cost.unwrap();
     println!("Second step: {}", min_cost);
 }
 
