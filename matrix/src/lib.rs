@@ -112,6 +112,10 @@ impl<T> Matrix<T> {
     pub fn iter_mut<'a>(&'a mut self) -> impl Iterator<Item = &mut T> + 'a {
         self.storage.iter_mut()
     }
+
+    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &T> + 'a {
+        self.storage.iter()
+    }
 }
 
 impl<T: Default> Matrix<T> {
