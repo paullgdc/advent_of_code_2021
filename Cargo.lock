@@ -112,10 +112,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "day_22"
+version = "0.1.0"
+
+[[package]]
 name = "day_23"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
+]
+
+[[package]]
+name = "day_24"
+version = "0.1.0"
+
+[[package]]
+name = "day_25"
+version = "0.1.0"
+dependencies = [
+ "matrix",
 ]
 
 [[package]]

@@ -48,7 +48,6 @@ fn coord_to_new_val(im: &Image, codec: &[Pixel], i: usize, j: usize) -> Pixel {
             coord |= *im.get(p, k).unwrap() as usize;
         }
     }
-    // dbg!((i, j, coord, codec[coord]));
     codec[coord]
 }
 
@@ -75,11 +74,9 @@ fn step_1(im: &Image, codec: &[Pixel]) {
     let mut im = expand_image(im);
     let mut background = 0;
     for _ in 0..2 {
-        // println!("{}", im);
         background = background_change(background, codec);
         im = apply_decompression(&im, codec, background);
     }
-    // println!("{}", im);
 
     let result = im.iter().filter(|&l| *l > 0).count();
     println!("Step 1: {}", result);

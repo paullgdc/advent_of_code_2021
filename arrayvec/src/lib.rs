@@ -3,7 +3,7 @@
 #![feature(maybe_uninit_extra)]
 #![feature(maybe_uninit_slice)]
 
-use std::mem::MaybeUninit;
+use std::{mem::MaybeUninit, ops::Deref};
 
 #[derive(Copy)]
 pub struct ArrayVec<T, const CAP: usize> {
@@ -136,6 +136,10 @@ impl<T, const CAP: usize> ArrayVec<T, CAP> {
 
             MaybeUninit::array_assume_init(arr)
         }
+    }
+
+    pub fn is_full(&self) -> bool {
+        self.length as usize == CAP
     }
 }
 
@@ -319,6 +323,30 @@ mod drain_filter {
     }
 }
 
+impl<T, const CAP: usize> Default for ArrayVec<T, CAP> {
+    fn default() -> Self {
+        ArrayVec::new()
+    }
+}
+
+impl<T: std::hash::Hash, const CAP: usize> std::hash::Hash for ArrayVec<T, CAP> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.deref().hash(state)
+    }
+}
+
+impl<T: std::cmp::PartialOrd, const CAP: usize> std::cmp::PartialOrd for ArrayVec<T, CAP> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.deref().partial_cmp(other.deref())
+    }
+}
+
+impl<T: std::cmp::Ord, const CAP: usize> std::cmp::Ord for ArrayVec<T, CAP> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.deref().cmp(other.deref())
+    }
+}
+
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct ArrayStr<const CAP: usize>(ArrayVec<u8, CAP>);
 
@@ -338,14 +366,12 @@ impl<const CAP: usize> std::ops::Deref for ArrayStr<CAP> {
 
 impl<const CAP: usize> std::fmt::Debug for ArrayStr<CAP> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use std::ops::Deref;
         self.deref().fmt(f)
     }
 }
 
 impl<const CAP: usize> std::hash::Hash for ArrayStr<CAP> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        use std::ops::Deref;
         self.deref().hash(state)
     }
 }
